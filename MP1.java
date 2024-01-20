@@ -36,29 +36,71 @@ public class MP1 {
         return ret;
     }
 
-    public String[] process() throws Exception{
-    	String[] topItems = new String[20];
+    public String[] process() throws Exception {
+        String[] topItems = new String[20];
         Integer[] indexes = getIndexes();
 
-    	//TO DO
+        Scanner in = new Scanner(System.in);
 
+        Map<String, Integer> counts = new HashMap<>();
 
-		return topItems;
+        List<String> lines = new ArrayList<>();
+
+        while (in.hasNext()) {
+            lines.add(in.nextLine());
+        }
+
+        for (Integer index : indexes) {
+
+            String line = lines.get(index);
+            StringTokenizer tokenizer = new StringTokenizer(line, delimiters);
+            while (tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken().toLowerCase();
+                if (Arrays.asList(stopWordsArray).contains(token)) {
+                    continue;
+                }
+                if (counts.containsKey(token)) {
+                    counts.put(token, counts.get(token) + 1);
+                } else {
+                    counts.put(token, 1);
+                }
+            }
+        }
+
+        Queue<Map.Entry<String, Integer>> maxQueue = new PriorityQueue<>(
+                (entry1, entry2) -> {
+                    int valueCompare = entry2.getValue().compareTo(entry1.getValue());
+                    if (valueCompare != 0) {
+                        return valueCompare;
+                    } else {
+                        return entry1.getKey().compareTo(entry2.getKey());
+                    }
+                }
+        );
+
+        maxQueue.addAll(counts.entrySet());
+
+        for (int i = 0; i < 20; i++) {
+            Map.Entry<String, Integer> entry = maxQueue.poll();
+            assert entry != null;
+            topItems[i] = entry.getKey();
+        }
+
+        return topItems;
     }
 
     public static void main(String args[]) throws Exception {
-    	if (args.length < 1){
-    		System.out.println("missing the argument");
-    	}
-    	else{
-    		String userName = args[0];
-	    	MP1 mp = new MP1(userName);
-	    	String[] topItems = mp.process();
+        if (args.length < 1) {
+            System.out.println("missing the argument");
+        } else {
+            String userName = args[0];
+            MP1 mp = new MP1(userName);
+            String[] topItems = mp.process();
 
-	        for (String item: topItems){
-	            System.out.println(item);
-	        }
-	    }
-	}
+            for (String item : topItems) {
+                System.out.println(item);
+            }
+        }
+    }
 
 }
